@@ -1,0 +1,28 @@
+# Linux x64 see https://github.com/mongodb-developer/get-started-php/blob/main/Dockerfile
+FROM php:8-apache
+
+LABEL maintainer="mhteaching2703@gmail.com"
+
+COPY src /src
+
+# Install scripts
+RUN apt-get update -y \
+    && apt-get install -y libicu-dev \
+					      libfreetype6-dev \
+						  libjpeg62-turbo-dev \
+		                  libpng-dev \
+    && pecl install mongodb \
+    && docker-php-ext-enable mongodb \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install intl \
+	&& docker-php-ext-configure gd --with-freetype --with-jpeg \
+	&& docker-php-ext-install -j$(nproc) gd \
+	&& pecl install xdebug \
+	&& docker-php-ext-enable xdebug \
+    && cd /src \
+    && chmod 755 *.sh \
+    && /src/install-apt.sh \
+    && /src/basic_tools.sh \
+    && /src/install-PHP+Tools.sh \
+	&& /src/install-Apache2.sh \
+    && /src/switchhttps.sh

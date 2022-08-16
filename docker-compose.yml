@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+    mongo:
+        image: mongo
+        container_name: mongo
+        volumes:
+            - mongodata:/data/db
+            - mongodata:/data/configdb
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+            - MONGO_INITDB_DATABASE=project
+        ports:
+            - "27017:27017"
+    php-apache:
+        build:
+            dockerfile: Dockerfile-php
+        container_name: mongoapp
+        volumes:
+            - ./mongoapp:/var/www/html
+            - ./src/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+        ports:
+            - "8084:80"
+            - "7444:443"
+        environment:
+            - ME_CONFIG_MONGODB_SERVER=mongo
+            - ME_CONFIG_MONGODB_PORT=27017
+            - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+            - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+            # the two following parameters are only needed, if ME_CONFIG_MONGODB_ENABLE_ADMIN is set to false
+            #            - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
+            #            - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
+            - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
+            - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
+        restart: always
+    mongo-express:
+        image: mongo-express
+        container_name: mongo-express
+        environment:
+# Resources for more details
+#
+# https://github.com/mongo-express/mongo-express-docker#configuration
+# https://github.com/mongo-express/mongo-express#usage-docker
+#
+            - ME_CONFIG_MONGODB_SERVER=mongo
+            - ME_CONFIG_MONGODB_PORT=27017
+            - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+            - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+# the two following parameters are only needed, if ME_CONFIG_MONGODB_ENABLE_ADMIN is set to false
+#            - ME_CONFIG_MONGODB_AUTH_USERNAME=${MONGO_ROOT_USER}
+#            - ME_CONFIG_MONGODB_AUTH_PASSWORD=${MONGO_ROOT_PASSWORD}
+            - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
+            - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
+        depends_on:
+            - mongo
+        ports:
+# port 8083 has been choosen with consideration for https://github.com/Digital-Media/fhooe-web-dock,
+# which may run in parallel.
+          - "8083:8081"
+volumes:
+    mongodata:
+networks:
+    default:
+        name: mongonet
