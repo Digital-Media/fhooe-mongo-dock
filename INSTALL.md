@@ -3,7 +3,7 @@
 ## Get repo
 
 Install it in any path on your computer.
-Open Powershell (PS) or other Terminal (prompt my be different then).
+Open Powershell (PS) or other Terminal (prompt may be different in this case).
 
 ```shell
 git clone https://github.com/Digital-Media/fhooe-mongo-dock.git
