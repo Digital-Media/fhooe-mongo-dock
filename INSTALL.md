@@ -1,4 +1,4 @@
-# Installation of hyp3ue_t2
+# Installation of fhooe-mongo-dock
 
 ## Get repo
 
