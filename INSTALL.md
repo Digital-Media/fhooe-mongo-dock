@@ -6,7 +6,7 @@ Install it in any path on your computer.
 Open Powershell (PS) or other Terminal (prompt my be different then).
 
 ```shell
-git clone https://github.com/Digital-Media/hyp3ue_t2.git
+git clone https://github.com/Digital-Media/fhooe-mongo-dock.git
 ```
 
 ## Docker
