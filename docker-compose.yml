@@ -3,7 +3,7 @@ version: '3.9'
 services:
     mongo:
         image: mongo
-        container_name: mongo
+        container_name: mongodb
         volumes:
             - mongodata:/data/db
             - mongodata:/data/configdb
@@ -18,6 +18,8 @@ services:
             - ./src/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
         # port 8084 has been chosen with consideration for https://github.com/Digital-Media/fhooe-web-dock,
         # which may run in parallel.
+        depends_on:
+            - mongo
         ports:
             - "8084:80"
             - "7444:443"
