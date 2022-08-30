@@ -46,23 +46,6 @@ final class MongoCRUD
         // $database = (new Client('mongodb://mongo:27017/'))->test;
         // $cursor = $database->command(['ping' => 1]);
         $this->collection = (new Client('mongodb://mongo:27017'))->test->users;
-        $cursor = $this->collection->find(
-            [
-                'name' => 'John Doe',
-                'role' => 'admin',
-            ],
-            [
-                'projection' => [
-                    'email' => 1,
-                ]
-            ]);
-//        $this->twigParams['emails'] = $cursor;
-//        $this->twig->display("mongocrud.html.twig", $this->twigParams);
-        ## /*
-        foreach ($cursor as $document) {
-            echo $document['email'], "<br>";
-        }
-        ## */
     }
 
     /**
@@ -78,14 +61,24 @@ final class MongoCRUD
      */
     public function isValid(): void
     {
+        if (Utilities::isEmptyString($_POST['email'])) {
+            $this->messages['email'] = "Please enter your email.";
+        }
+        if (!Utilities::isEmptyString($_POST['email']) && !Utilities::isEmail($_POST['email'])) {
+            $this->messages['email'] = "Please enter a valid email.";
+        }
+        if (Utilities::isEmptyString($_POST['name'])) {
+            $this->messages['name'] = "Please enter your name.";
+        }
         if ((count($this->messages) === 0)) {
                 $this->business();
-            }
-        /*
-        $this->twigParams['email'] = $_POST['email'];
-        $this->twigParams['messages'] = $this->messages;
-        $this->twig->display("mongocrud.html.twig", $this->twigParams);
-        */
+        } else {
+            echo "ich war hier";
+            $this->twigParams['email'] = $_POST['email'];
+            $this->twigParams['name'] = $_POST['name'];
+            $this->twigParams['messages'] = $this->messages;
+            $this->twig->display("mongocrud.html.twig", $this->twigParams);
+        }
     }
 
     /**
@@ -97,9 +90,34 @@ final class MongoCRUD
     {
         $insertOneResult = $this->collection->insertOne([
             'role' => 'admin',
-            'email' => 'john1.doe@mongo.db',
-            'name' => 'John Doe',
+            'email' => $_POST['email'],
+            'name' => $_POST['name'],
         ]);
-
+        $this->twigParams['emails'] = $this->fillEmails();
+        $this->twig->display("mongocrud.html.twig", $this->twigParams);
     }
+
+    /**
+     * Returns all emails of the table onlineshop.users in an array.
+     *
+     * @return mixed Array that returns rows of onlineshop.product_category. false in case of error
+     */
+    public function fillEmails(): array
+    {
+        $result = [];
+        $emails = $this->collection->find(
+            [
+                'role' => 'admin',
+            ],
+            [
+                'projection' => [
+                    'email' => 1,
+                ]
+            ]);
+        foreach ($emails as $document) {
+            $result[]['email'] = $document['email'];
+        }
+        return $result;
+    }
+
 }

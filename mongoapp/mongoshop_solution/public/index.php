@@ -107,7 +107,9 @@ try {
     });
 
     $router->get("/mongocrud", function () use ($twig) {
-        $twig->display("mongocrud.html.twig");
+        $mongocrud = new MongoCRUD($twig);
+        $emails = $mongocrud->fillEmails();
+        $twig->display("mongocrud.html.twig", ["emails" => $emails]);
     });
 
     $router->post("/mongocrud", function () use ($twig) {
