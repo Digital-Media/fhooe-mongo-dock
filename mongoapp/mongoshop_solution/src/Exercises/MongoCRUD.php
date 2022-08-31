@@ -3,6 +3,7 @@ namespace Exercises;
 
 use Utilities\Utilities;
 use MongoDB\Client;
+use MongoDB\BSON\ObjectId;
 
 /**
  * The class MongoCRUD implements basic CRUD operations against MongoDB.
@@ -24,14 +25,24 @@ final class MongoCRUD
     private object $twig;
 
     /**
-     * @var object twig provides a Twig object to display hmtl templates
-     */
-    private object $collection;
-
-    /**
      * @var array twigParams is used to set variables passed to Twig
      */
     private array $twigParams = [];
+
+    /**
+     * @var object users provides a object a connection to mongodb.
+     */
+    private object $connection;
+
+    /**
+     * @var object db_test provides a object to access the database test.
+     */
+    private object $db_test;
+
+    /**
+     * @var object users provides a object to access the collection users.
+     */
+    private object $users;
 
     /**
      * MongoCRUD constructor.
@@ -46,7 +57,116 @@ final class MongoCRUD
         // $database = (new Client('mongodb://mongo:27017/'))->test;
         // $cursor = $database->command(['ping' => 1]);
         // var_dump($cursor->toArray()[0]);
-        $this->collection = (new Client('mongodb://mongo:27017'))->test->users;
+        $this->connection = new Client('mongodb://mongo:27017');
+        $this->db_test = $this->connection->test;
+        $this->users = $this->db_test->users;
+        // short form, but less flexible,
+        // if you handle more than one database or collection within one class/project
+        // $this->collection = (new Client('mongodb://mongo:27017'))->test->users;
+    }
+
+    public function displayForm(string $route = "/createuser"): void
+    {
+        $this->twigParams['route'] = $route;
+        $this->twigParams['users'] = $this->fillUsersArray();
+        $this->twig->display("mongocrud.html.twig", $this->twigParams);
+    }
+    /**
+     * Validate and process user input, sent with a POST request.
+     *
+     * @return void Returns nothing
+     */
+    public function insertUser(): void
+    {
+        if ($this->isValid()) {
+            $insertOneResult = $this->users->insertOne([
+            'role' => 'admin',
+            'email' => $_POST['email'],
+            'name' => $_POST['name'],
+            ]);
+            $this->twigParams['messages']['status'] = "Document with _id " . $insertOneResult->getInsertedId() . " inserted";
+        } else {
+            $this->twigParams['email'] = $_POST['email'];
+            $this->twigParams['name'] = $_POST['name'];
+        }
+        $this->displayForm();
+    }
+
+    /**
+     * Process the user input, sent with a POST request
+     *
+     * @return void Returns nothing
+     */
+    public function updateUser(): void
+    {
+        if ($this->isValid()) {
+            $updateResult = $this->users->updateOne(
+                ['_id' => new ObjectId($_POST['uid'])],
+                ['$set' => ['email' => $_POST['email'], 'name' => $_POST['name']]]
+            );
+            $this->twigParams['messages']['status'] = $updateResult->getMatchedCount() . " document updated";
+            $this->displayForm();
+        } else {
+            $this->twigParams['email'] = $_POST['email'];
+            $this->twigParams['name'] = $_POST['name'];
+            $this->displayForm("/updateuser");
+        }
+    }
+    /**
+     * Returns all emails of the collection test.users in an array.
+     *
+     * @return mixed Array that returns rows of test.users. false in case of error
+     */
+    public function fillUsersArray(): array
+    {
+        $users = $this->users->find(
+            [
+            ],
+            [
+                'projection' => [
+                    'email' => 1,
+                ]
+            ]);
+        return iterator_to_array($users);
+    }
+
+    /**
+     * Returns all keys of the collection test.users in an array.
+     *
+     * @return mixed Array that returns rows of test.users. false in case of error
+     */
+    public function getUserFields(): array
+    {
+        $result = [];
+        $user = $this->users->findOne(
+            [
+                '_id' => new ObjectId($_GET['uid']),
+            ],
+            [
+                'projection' => [
+                    'email' => 1,
+                    'name' => 1,
+                ]
+            ]);
+        $result['userid'] = $user->_id;
+        $result['email'] = $user->email;
+        $result['name'] = $user->name;
+        return $result;
+    }
+
+    /**
+     * Deletes an user identified by his email from the collection test.users.
+     *
+     * @return mixed Array that returns rows of onlineshop.product_category. false in case of error
+     */
+    public function deleteUser(): void
+    {
+        $deleteResult = $this->users->deleteOne(
+            [
+                '_id' => new ObjectId($_GET['uid']),
+            ]);
+        $this->twigParams['messages']['status'] = $deleteResult->getDeletedCount() . " document deleted";
+        $this->displayForm();
     }
 
     /**
@@ -56,11 +176,10 @@ final class MongoCRUD
      * The combination of email + password is checked against database in @see Login::authenitcateUser()
      *
      * Error messages are stored in the array $messages[].
-     * Calls MongoCRUD::business() if all input fields are valid.
      *
-     * @return void Returns nothing
+     * @return bool Returns true if user input is valid. otherwise false
      */
-    public function isValid(): void
+    protected function isValid(): bool
     {
         if (Utilities::isEmptyString($_POST['email'])) {
             $this->messages['email'] = "Please enter your email.";
@@ -72,53 +191,10 @@ final class MongoCRUD
             $this->messages['name'] = "Please enter your name.";
         }
         if ((count($this->messages) === 0)) {
-                $this->business();
+            return true;
         } else {
-            echo "ich war hier";
-            $this->twigParams['email'] = $_POST['email'];
-            $this->twigParams['name'] = $_POST['name'];
             $this->twigParams['messages'] = $this->messages;
-            $this->twig->display("mongocrud.html.twig", $this->twigParams);
+            return false;
         }
     }
-
-    /**
-     * Process the user input, sent with a POST request
-     *
-     * @return void Returns nothing
-     */
-    protected function business(): void
-    {
-        $insertOneResult = $this->collection->insertOne([
-            'role' => 'admin',
-            'email' => $_POST['email'],
-            'name' => $_POST['name'],
-        ]);
-        $this->twigParams['emails'] = $this->fillEmails();
-        $this->twig->display("mongocrud.html.twig", $this->twigParams);
-    }
-
-    /**
-     * Returns all emails of the table onlineshop.users in an array.
-     *
-     * @return mixed Array that returns rows of onlineshop.product_category. false in case of error
-     */
-    public function fillEmails(): array
-    {
-        $result = [];
-        $emails = $this->collection->find(
-            [
-                'role' => 'admin',
-            ],
-            [
-                'projection' => [
-                    'email' => 1,
-                ]
-            ]);
-        foreach ($emails as $document) {
-            $result[]['email'] = $document['email'];
-        }
-        return $result;
-    }
-
 }

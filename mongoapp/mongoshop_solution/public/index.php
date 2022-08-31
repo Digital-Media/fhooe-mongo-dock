@@ -9,7 +9,7 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
 use Utilities\Utilities;
-use Exercises\AddCountry;
+use Exercises\Countries;
 use Exercises\MongoCRUD;
 use Exercises\MyCart;
 
@@ -72,26 +72,47 @@ try {
         $twig->display("index.html.twig");
     });
 
-    $router->get("/addcountry", function () use ($twig) {
-        $addcountry = new AddCountry($twig);
-        $countries = $addcountry->fillCountry();
-        $twig->display("addcountry.html.twig", ["countries" => $countries]);
+    $router->get("/createuser", function () use ($twig) {
+        $mongocrud = new MongoCRUD($twig);
+        $mongocrud->displayForm();
     });
 
-    $router->post("/addcountry", function () use ($twig) {
-        $addcountry = new AddCountry($twig);
+    $router->get("/deleteuser", function () use ($twig) {
+        $mongocrud = new MongoCRUD($twig);
+        $mongocrud->deleteUser();
+    });
+
+    $router->get("/updateuser", function () use ($twig) {
+        $mongocrud = new MongoCRUD($twig);
+        $twigParams['route'] = "/updateuser";
+        $emails = $mongocrud->fillUsersArray();
+        $twigParams['emails'] = $emails;
+        $formfields = $mongocrud->getUserFields();
+        $twigParams['email'] = $formfields['email'];
+        $twigParams['name'] = $formfields['name'];
+        $twig->display("mongocrud.html.twig", $twigParams);
+    });
+
+    $router->post("/createuser", function () use ($twig) {
+        $mongocrud = new MongoCRUD($twig);
+        $mongocrud->insertUser();
+    });
+
+    $router->post("/updateuser", function () use ($twig) {
+        $mongocrud = new MongoCRUD($twig);
+        $mongocrud->updateUser();
+    });
+
+    $router->get("/createcountry", function () use ($twig) {
+        $addcountry = new Countries($twig);
+        $countries = $addcountry->fillCountry();
+        $twig->display("countries.html.twig", ["countries" => $countries]);
+    });
+
+    $router->post("/createcountry", function () use ($twig) {
+        $addcountry = new Countries($twig);
         $addcountry->isValid();
     });
-
-    $router->get("/mongocrud", function () use ($twig) {
-        $mongocrud = new MongoCRUD($twig);
-        $emails = $mongocrud->fillEmails();
-        $twig->display("mongocrud.html.twig", ["emails" => $emails]);
-    });
-
-    $router->post("/mongocrud", function () use ($twig) {
-        $mongocrud = new MongoCRUD($twig);
-        $mongocrud->isValid();    });
 
     $router->get("/mycart", function () use ($twig) {
         $product = new MyCart($twig);

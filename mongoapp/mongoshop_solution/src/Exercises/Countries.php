@@ -11,7 +11,7 @@ use Utilities\Utilities;
  *
  * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
  */
-final class AddCountry extends Country
+final class Countries extends Country
 {
     /**
      * @var array messages is used to display error and status messages after a form was sent an validated
@@ -48,7 +48,7 @@ final class AddCountry extends Country
     {
         $this->twig=$twig;
         $this->dm=$dm;
-        $this->country= new Country();
+        $this->country= new Countries();
     }
 
 
@@ -58,7 +58,7 @@ final class AddCountry extends Country
      * name of country and ISOcode are validated with a regex. You can use Utilities::isString() to do so.
      *
      * Error messages are stored in the array $messages[].
-     * Calls AddCountry::business() if all input fields are valid.
+     * Calls Countries::business() if all input fields are valid.
      *
      * @return void Returns nothing
      */
@@ -80,7 +80,7 @@ final class AddCountry extends Country
             $this->twigParams['isocode'] = $_POST['isocode'];
             $this->twigParams['countries'] = $this->fillCountry();
             $this->twigParams['messages']= $this->messages;
-            $this->twig->display("addcountry.html.twig", $this->twigParams);
+            $this->twig->display("countries.html.twig", $this->twigParams);
         }
     }
 
@@ -96,7 +96,7 @@ final class AddCountry extends Country
     {
         $this->addCountry();
         $this->twigParams['countries'] = $this->fillCountry();
-        $this->twig->display("addcountry.html.twig", $this->twigParams);
+        $this->twig->display("countries.html.twig", $this->twigParams);
     }
 
     /**
@@ -107,7 +107,7 @@ final class AddCountry extends Country
     public function fillCountry(): array
     {
         $result = [];
-        //$result = $this->dm->findAll(Country::class);
+        //$result = $this->dm->findAll(Countries::class);
         return $result;
     }
 

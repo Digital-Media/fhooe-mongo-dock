@@ -1,11 +1,11 @@
 {% extends "base.html.twig" %}
 
-{% block title %}CRUD Test{% endblock title %}
+{% block title %}CRUD Example{% endblock title %}
 {% block main %}
-    <h1>CRUD Test</h1>
+    <h1>CRUD Example</h1>
     <div class="border p-3 mt-5">
         {{ include('errors.html.twig') }}
-        <form method="post" action="{{ url_for("/mongocrud") }}">
+        <form method="post" action="{{ url_for( route ) }}">
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
                 <input type="email" class="form-control" id="email" name="email" value="{{ email }}"
@@ -14,24 +14,28 @@
             </div>
             <div class="mb-3">
                 <label for="name" class="form-label">Your Name</label>
-                <input type="text" class="form-control" id="name" name="name"
+                <input type="text" class="form-control" id="name" name="name" value="{{ name }}"
                        placeholder="Your Name" aria-describedby="nameHelp">
                 <div id="nameHelp" class="form-text">Please enter your name.</div>
             </div>
-            <button type="submit" class="btn btn-primary">Send</button>
+            <button type="submit" class="btn btn-primary" name="uid[{{ oid }}]">Send</button>
         </form>
     </div>
     <div class="border p-3 mt-5">
-        <h2>List of E-Mails</h2>
+        <h2>List of User E-Mails</h2>
         <div>
             <table>
                 <tr>
-                    <th>E-Mails</th>
+                    <th>Users</th>
+                    <th>identified by</th>
+                    <th>E-Mail</th>
                 </tr>
-                {% if emails is defined %}
-                    {% for key, value in emails %}
+                {% if users is defined %}
+                    {% for key, value in users %}
                         <tr>
-                            <td> {{ emails[key]['email'] }} </td>
+                            <td> <a href="{{ url_for("/deleteuser") ~ "?uid=" ~ users[key]['_id'] }}"> Delete </a></td>
+                            <td> <a href="{{ url_for("/updateuser") ~ "?uid=" ~ users[key]['_id'] }}"> Update </a></td>
+                            <td> &nbsp; {{ users[key]['email'] }} </td>
                         </tr>
                     {% else %}
                         <tr>
