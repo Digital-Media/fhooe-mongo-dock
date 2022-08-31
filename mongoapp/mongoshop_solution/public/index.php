@@ -12,31 +12,8 @@ use Utilities\Utilities;
 use Exercises\AddCountry;
 use Exercises\MongoCRUD;
 use Exercises\MyCart;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\ODM\MongoDB\Configuration;
-use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
-use MongoDB\Client;
 
-$loader = require_once('../vendor/autoload.php');
-
-$loader->add('Documents', __DIR__);
-AnnotationRegistry::registerLoader([$loader, 'loadClass']); //TODO change code to not depricated version
-
-$client = new Client('mongodb://mongo:27017', [], ['typeMap' => DocumentManager::CLIENT_TYPEMAP]);
-// $client = (new Client('mongodb://mongo:27017'))->test;
-$config = new Configuration();
-$config->setProxyDir('../proxies');
-$config->setProxyNamespace('Proxies');
-$config->setHydratorDir('../hydrators');
-$config->setHydratorNamespace('Hydrators');
-$config->setMetadataDriverImpl(AnnotationDriver::create('../src/Documents'));
-$config->setDefaultDB('test');
-
-//$dm = DocumentManager::create($client, $config);
-$dm = DocumentManager::create(null, $config);
-spl_autoload_register($config->getProxyManagerConfiguration()->getProxyAutoloader());
-
+require_once('../vendor/autoload.php');
 
 session_start();
 
@@ -95,14 +72,14 @@ try {
         $twig->display("index.html.twig");
     });
 
-    $router->get("/addcountry", function () use ($twig, $dm) {
-        $addcountry = new AddCountry($twig, $dm);
+    $router->get("/addcountry", function () use ($twig) {
+        $addcountry = new AddCountry($twig);
         $countries = $addcountry->fillCountry();
         $twig->display("addcountry.html.twig", ["countries" => $countries]);
     });
 
-    $router->post("/addcountry", function () use ($twig, $dm) {
-        $addcountry = new AddCountry($twig, $dm);
+    $router->post("/addcountry", function () use ($twig) {
+        $addcountry = new AddCountry($twig);
         $addcountry->isValid();
     });
 

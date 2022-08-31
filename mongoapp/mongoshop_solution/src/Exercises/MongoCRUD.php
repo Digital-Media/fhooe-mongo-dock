@@ -45,6 +45,7 @@ final class MongoCRUD
         // simply testing the connection
         // $database = (new Client('mongodb://mongo:27017/'))->test;
         // $cursor = $database->command(['ping' => 1]);
+        // var_dump($cursor->toArray()[0]);
         $this->collection = (new Client('mongodb://mongo:27017'))->test->users;
     }
 
