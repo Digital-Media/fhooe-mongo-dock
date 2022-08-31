@@ -18,7 +18,13 @@
                        placeholder="Your Name" aria-describedby="nameHelp">
                 <div id="nameHelp" class="form-text">Please enter your name.</div>
             </div>
-            <button type="submit" class="btn btn-primary" name="uid[{{ oid }}]">Send</button>
+            {% if uid is defined %}
+                {% for key, value in uid %}
+                    <button type="submit" class="btn btn-primary" name="uid[{{ value }}]">Update</button>
+                {% endfor %}
+            {% else %}
+                <button type="submit" class="btn btn-primary">Insert</button>
+            {% endif %}
         </form>
     </div>
     <div class="border p-3 mt-5">

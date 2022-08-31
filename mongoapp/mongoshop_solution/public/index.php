@@ -84,13 +84,7 @@ try {
 
     $router->get("/updateuser", function () use ($twig) {
         $mongocrud = new MongoCRUD($twig);
-        $twigParams['route'] = "/updateuser";
-        $emails = $mongocrud->fillUsersArray();
-        $twigParams['emails'] = $emails;
-        $formfields = $mongocrud->getUserFields();
-        $twigParams['email'] = $formfields['email'];
-        $twigParams['name'] = $formfields['name'];
-        $twig->display("mongocrud.html.twig", $twigParams);
+        $mongocrud->updateUser();
     });
 
     $router->post("/createuser", function () use ($twig) {

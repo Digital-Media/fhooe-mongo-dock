@@ -99,17 +99,28 @@ final class MongoCRUD
      */
     public function updateUser(): void
     {
-        if ($this->isValid()) {
-            $updateResult = $this->users->updateOne(
-                ['_id' => new ObjectId($_POST['uid'])],
-                ['$set' => ['email' => $_POST['email'], 'name' => $_POST['name']]]
-            );
-            $this->twigParams['messages']['status'] = $updateResult->getMatchedCount() . " document updated";
-            $this->displayForm();
-        } else {
-            $this->twigParams['email'] = $_POST['email'];
-            $this->twigParams['name'] = $_POST['name'];
+        if (isset ($_GET['uid'])) {
+            $this->twigParams['uid']['oid']= $_GET['uid'];
+            $form_fields = $this->getUserFields();
+            $this->twigParams['email'] = $form_fields['email'];
+            $this->twigParams['name'] = $form_fields['name'];
             $this->displayForm("/updateuser");
+        } else {
+            $uid= array_keys($_POST['uid']);
+            if ($this->isValid()) {
+                $updateResult = $this->users->updateOne(
+                    ['_id' => new ObjectId($uid[0])],
+                    ['$set' => ['email' => $_POST['email'], 'name' => $_POST['name']]]
+                );
+                $this->twigParams['messages']['status'] = $updateResult->getMatchedCount() . " document updated";
+                $this->displayForm();
+            } else {
+                $this->twigParams['uid']['oid']= $uid[0];
+                $this->twigParams['email'] = $_POST['email'];
+                $this->twigParams['name'] = $_POST['name'];
+                $this->displayForm("/updateuser");
+            }
+
         }
     }
     /**
