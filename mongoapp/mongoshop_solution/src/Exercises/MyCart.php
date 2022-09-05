@@ -1,7 +1,6 @@
 <?php
 namespace Exercises;
 
-use PDO;
 use Utilities\Utilities;
 
 /*
@@ -35,60 +34,26 @@ final class MyCart
     public function __construct($twig)
     {
         $this->twig=$twig;
-        $this->initDB();
     }
-
-    /*
-     * Initialize database connection
-     *
-     * @return void Returns nothing
-     */
 
     /**
      * Validates the user input
      *
      * All fields are required.
-     * product_name is checked for uniqueness against onlineshop.product.product_name.
      *
-     * @return void Returns nothing
-     *@see MyCart::isValidCategory().
+     * @return bool Returns nothing
      *
      * Error messages are stored in the array $messages[].
-     * Calls Login::business() if all input fields are valid.
      *
-     * @see MyCart::isUniqueProductName().
      * Price can be validated with Utilities::isPrice().
-     * ptype is checked against onlineshop.product_category, if it exists.
      */
-    public function isValid(): void
+    private function isValid(): bool
     {
         if ((count($this->messages) === 0)) {
-            $this->business();
+            return true;
         } else {
-            $this->twigParams['product_name']= $_POST['product_name'];
-            $this->twigParams['price']= $_POST['price'];
-            $this->twigParams['short_description']= $_POST['short_description'];
-            $this->twigParams['long_description']= $_POST['long_description'];
-            $this->twigParams['selected']= Utilities::sanitizeFilter($_POST['product_category_name']);
-            $this->twigParams['active']= $_POST['active'];
-            $this->twigParams['messages']= $this->messages;
-            $this->twigParams['productCategory']= $this->fillProductCategory();;
-            $this->twig->display("mycart.html.twig", $this->twigParams);
+            return false;
         }
-    }
-
-    /**
-     * Process the user input, sent with a POST request
-     *
-     * Calls MyCart::addProduct(), to store the validated data in the table onlineshop.product.
-     * On success $this->message['status'] is set and sent to the template.
-     */
-    protected function business(): void
-    {
-        $this->messages['status'] = "Your product has been added successfully";
-        $this->twigParams['messages']= $this->messages;
-        $this->twigParams['productCategory']= $this->fillProductCategory();;
-        $this->twig->display("mycart.html.twig", $this->twigParams);
     }
 
     /**
@@ -96,39 +61,22 @@ final class MyCart
      *
      * @return mixed Array that returns rows of onlineshop.product_category. false in case of error
      */
-    public function fillProductCategory(): array
+    public function displayForm($route = "/mycart"): void
     {
-        $result = [];
-        $query = <<<SQL
-                 SELECT product_category_name 
-                 FROM product_category
-SQL;
-        if ($this->dbh) {
-            $this->stmt = $this->dbh->prepare($query);
-            $this->stmt->execute();
-            $result = $this->stmt->fetchAll();
-        }
+        $this->twigParams['route'] = $route;
+        $this->twigParams['order_items'] = $this->fillCartArray();
+        $this->twig->display("mycart.html.twig", $this->twigParams);
+    }
+
+    /**
+     * Returns all emails of the collection test.users in an array.
+     *
+     * @return mixed Array that returns rows of test.users. false in case of error
+     */
+    public function fillCartArray(): array
+    {
+        $result[]= ['pid' => 1, 'product_name' => 'My favorite Book', 'price' => 10, 'quantity' => 1];
         return $result;
-    }
-
-    /**
-     * product_category in $_POST is checked against the table onlineshop.product_category, if it already exists.
-     *
-     * @return bool true, if product category exists, otherwise false.
-     */
-    private function isValidCategory(): bool
-    {
-            return true;
-    }
-
-    /**
-     * product_name is checked for uniqueness against the table onlineshop.product.
-     *
-     * @return bool false, if product_name in table onlineshop.product already exist, else true.
-     */
-    private function isUniqueProductName(): bool
-    {
-            return true;
     }
 
     /**
@@ -136,7 +84,11 @@ SQL;
      *
      * @return void Returns nothing
      */
-    private function addProduct(): void
+    public function insertOrder(): void
     {
+        $this->messages['status'] = "Your order has been processed successfully";
+        $this->twigParams['order_items'] = $this->fillCartArray();
+        $this->twigParams['messages']= $this->messages;
+        $this->twig->display("mycart.html.twig", $this->twigParams);
     }
 }

@@ -1,7 +1,6 @@
 <?php
 namespace Exercises;
 
-use Documents\Country;
 use Utilities\Utilities;
 
 /*
@@ -11,7 +10,7 @@ use Utilities\Utilities;
  *
  * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
  */
-final class Countries extends Country
+final class Countries
 {
     /**
      * @var array messages is used to display error and status messages after a form was sent an validated
@@ -19,9 +18,9 @@ final class Countries extends Country
     private array $messages = [];
 
     /**
-     * @var object country provides a MongoDB ODM object to get and persist documents
+     * @var object countries provides a object to access the collection countries.
      */
-    private object $country;
+    private object $countries;
 
     /**
      * @var object twig provides a Twig object to display hmtl templates
@@ -29,73 +28,25 @@ final class Countries extends Country
     private object $twig;
 
     /**
-     * @var object dm provides a MongoDB
-     */
-    private object $dm;
-
-    /**
      * @var array twigParams is used to set variables passed to Twig
      */
     private array $twigParams = [];
 
     /**
-     * Register Constructor.
+     * Countries Constructor.
      *
      * Initializes Twig
      * Creates a database handler for the database connection.
      */
-    public function __construct($twig, $dm)
+    public function __construct($twig)
     {
         $this->twig=$twig;
-        $this->dm=$dm;
-        $this->country= new Countries();
     }
 
-
-    /**
-     * Validates the user input
-     *
-     * name of country and ISOcode are validated with a regex. You can use Utilities::isString() to do so.
-     *
-     * Error messages are stored in the array $messages[].
-     * Calls Countries::business() if all input fields are valid.
-     *
-     * @return void Returns nothing
-     */
-    public function isValid(): void
+    public function displayForm(string $route = "/createcountry"): void
     {
-        if (Utilities::isEmptyString($_POST['country'])) {
-            $this->messages['country'] = "Please enter a country name.";
-        }
-        if (Utilities::isEmptyString($_POST['isocode'])) {
-            $this->messages['isocode'] = "Please enter an isocode with exactly 2 letters for country above.";
-        }
-        if (!Utilities::isEmptyString($_POST['isocode']) && strlen($_POST['isocode']) !== 2) {
-            $this->messages['isocode'] = "Please use exactly 2 letters for isocode.";
-        }
-        if ((count($this->messages) === 0)) {
-            $this->business();
-        } else {
-            $this->twigParams['country'] = $_POST['country'];
-            $this->twigParams['isocode'] = $_POST['isocode'];
-            $this->twigParams['countries'] = $this->fillCountry();
-            $this->twigParams['messages']= $this->messages;
-            $this->twig->display("countries.html.twig", $this->twigParams);
-        }
-    }
-
-    /**
-     * Process the user input, sent with a POST request
-     *
-     * Writes the data with addUser() into table onlineshop.user.
-     * On success the user is redirected to index.html.twig.
-     *
-     * @return void Returns nothing
-     */
-    protected function business(): void
-    {
-        $this->addCountry();
-        $this->twigParams['countries'] = $this->fillCountry();
+        $this->twigParams['route'] = $route;
+        $this->twigParams['countries'] = $this->fillCountryArray();
         $this->twig->display("countries.html.twig", $this->twigParams);
     }
 
@@ -104,10 +55,9 @@ final class Countries extends Country
      *
      * @return mixed Array that returns rows of onlineshop.product_category. false in case of error
      */
-    public function fillCountry(): array
+    private function fillCountryArray(): array
     {
-        $result = [];
-        //$result = $this->dm->findAll(Countries::class);
+        $result[]= ['name' => 'Homeland', 'ISOcode' => 'HL'];
         return $result;
     }
 
@@ -116,10 +66,30 @@ final class Countries extends Country
      *
      * @return void Returns nothing
      */
-    private function addCountry(): void
+    public function insertCountry(): void
     {
-        $this->country->setName($_POST['country']);
-        $this->country->setISOcode($_POST['isocode']);
-        $this->dm->flush();
+        $insertOneResult = 1;
+        $this->twigParams['messages']['status'] = "Country with _id " . $insertOneResult . " inserted";
+        $this->twigParams['countries'] = $this->fillCountryArray();
+        $this->twig->display("countries.html.twig", $this->twigParams);
+    }
+
+    /**
+     * Validates the user input
+     *
+     * name of country and ISOcode are validated with a regex. You can use Utilities::isString() to do so.
+     *
+     * Error messages are stored in the array $messages[].
+     *
+     * @return bool Returns true if user input is valid, otherwise false.
+     */
+    private function isValid(): bool
+    {
+        if ((count($this->messages) === 0)) {
+            return true;
+        } else {
+            $this->twigParams['messages'] = $this->messages;
+            return false;
+        }
     }
 }

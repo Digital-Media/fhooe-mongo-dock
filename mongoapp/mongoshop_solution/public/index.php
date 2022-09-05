@@ -8,9 +8,9 @@ use Monolog\Logger;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
-use Utilities\Utilities;
 use Exercises\Countries;
 use Exercises\MongoCRUD;
+use Exercises\MongoDoctrine;
 use Exercises\MyCart;
 
 require_once('../vendor/autoload.php');
@@ -97,26 +97,33 @@ try {
         $mongocrud->updateUser();
     });
 
+    $router->get("/mongodoctrine", function () use ($twig) {
+        $mongodoctrine = new MongoDoctrine($twig);
+        $mongodoctrine->displayForm();
+    });
+
+    $router->post("/mongodoctrine", function () use ($twig) {
+        $mongodoctrine = new MongoDoctrine($twig);
+        $mongodoctrine->insertUser();
+    });
     $router->get("/createcountry", function () use ($twig) {
-        $addcountry = new Countries($twig);
-        $countries = $addcountry->fillCountry();
-        $twig->display("countries.html.twig", ["countries" => $countries]);
+        $countries = new Countries($twig);
+        $countries->displayForm();
     });
 
     $router->post("/createcountry", function () use ($twig) {
-        $addcountry = new Countries($twig);
-        $addcountry->isValid();
+        $countries = new Countries($twig);
+        $countries->insertCountry();
     });
 
     $router->get("/mycart", function () use ($twig) {
-        $product = new MyCart($twig);
-        $productCategory = $product->fillProductCategory();
-        $twig->display("mycart.html.twig", ["productCategory" => $productCategory]);
+        $mycart = new MyCart($twig);
+        $mycart->displayForm();
     });
 
     $router->post("/mycart", function () use ($twig) {
-        $product = new MyCart($twig);
-        $product->isValid();
+        $mycart = new MyCart($twig);
+        $mycart->insertOrder();
     });
 
 // Run the router to get the party started.

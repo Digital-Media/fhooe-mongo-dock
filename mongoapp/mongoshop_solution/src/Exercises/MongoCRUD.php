@@ -71,6 +71,7 @@ final class MongoCRUD
         $this->twigParams['users'] = $this->fillUsersArray();
         $this->twig->display("mongocrud.html.twig", $this->twigParams);
     }
+
     /**
      * Validate and process user input, sent with a POST request.
      *
@@ -123,12 +124,13 @@ final class MongoCRUD
 
         }
     }
+
     /**
      * Returns all emails of the collection test.users in an array.
      *
      * @return mixed Array that returns rows of test.users. false in case of error
      */
-    public function fillUsersArray(): array
+    private function fillUsersArray(): array
     {
         $users = $this->users->find(
             [
@@ -146,7 +148,7 @@ final class MongoCRUD
      *
      * @return mixed Array that returns rows of test.users. false in case of error
      */
-    public function getUserFields(): array
+    private function getUserFields(): array
     {
         $result = [];
         $user = $this->users->findOne(
@@ -184,13 +186,13 @@ final class MongoCRUD
      * Validates the user input
      *
      * email and password are required fields.
-     * The combination of email + password is checked against database in @see Login::authenitcateUser()
+     * It checks if email is a valid email.
      *
      * Error messages are stored in the array $messages[].
      *
-     * @return bool Returns true if user input is valid. otherwise false
+     * @return bool Returns true if user input is valid, otherwise false.
      */
-    protected function isValid(): bool
+    private function isValid(): bool
     {
         if (Utilities::isEmptyString($_POST['email'])) {
             $this->messages['email'] = "Please enter your email.";
