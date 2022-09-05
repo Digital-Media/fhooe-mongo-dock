@@ -30,11 +30,11 @@
     <div class="border p-3 mt-5">
         <h2>List of User E-Mails</h2>
         <div>
-            <table>
+            <table class="table table-bordered">
                 <tr>
-                    <th>Users</th>
-                    <th>identified by</th>
-                    <th>E-Mail</th>
+                    <th>Delete</th>
+                    <th>Update</th>
+                    <th>User E-Mails</th>
                 </tr>
                 {% if users is defined %}
                     {% for key, value in users %}

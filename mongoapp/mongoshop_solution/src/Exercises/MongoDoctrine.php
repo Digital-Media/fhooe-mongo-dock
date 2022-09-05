@@ -8,6 +8,7 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
 use MongoDB\Client;
 
+//TODO provide full example
 /*
  $loader = require_once('../../vendor/autoload.php');
 
