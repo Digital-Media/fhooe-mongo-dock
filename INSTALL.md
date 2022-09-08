@@ -15,17 +15,21 @@ cd <path-to-fhooe-mongo-dock>
 ```
 docker compose up -d
 ```
-access mongodb via commandline in container
+Access mongodb via commandline in container
 ```
-docker exec -it mongodb /bin/bash -c mongo
+docker exec -it mongodb /bin/bash -c "mongo"
 ```
-access container mongo-express via commandline
+Access container mongo-express via commandline
 ```
 docker exec -it mongo-express /bin/bash
 ```
-access mongo-express vis browser: `http://localhost:8083`
+Access mongo-express vis browser: `http://localhost:8083`
 or [download](https://www.mongodb.com/try/download/compass) and install MongoDB Compass for a GUI. 
 
+Access mongoapp container if you faces installation issues.
+```
+docker exec -it mongoapp /bin/bash
+```
 ### List connection to MongoDB 
 mongo> 
   ```
