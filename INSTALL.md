@@ -38,3 +38,35 @@ mongo>
 ## Cloud
 
 Get a free MongoDB Atlas account or sign in with Google [HERE](https://www.mongodb.com/cloud/atlas/register).
+
+## Cleaning Up and Re-Install
+You can clean up using Docker Desktop
+- Stop and remove Containers
+- Remove Images for mariadb, php-apache and phpmyadmin
+- Remove Volume fhooe-web-dock_dbdata
+
+### Clean Re-Install in Commandline
+- Go to directory, where docker-compose.yml is installed.
+- Type \.CleanReinstall.sh
+  This will execute the following commands in one go.
+
+stop and delete containers
+```shell
+docker compose down
+```
+delete all unused images
+```shell
+docker image prune -f
+```
+remove volume
+```shell
+docker volume rm --force fhooe-web-dock_dbdata;
+```
+See [Starting Container](#starting-containers) to start again.
+
+manually deleting only images for fhooe-web-dock
+```shell
+docker image rm fhooe-web-dock_php-apache
+docker image rm fhooe-web-dock_db
+docker image rm phpmyadmin/phpmyadmin
+```
