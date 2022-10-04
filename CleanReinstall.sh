@@ -1,4 +1,4 @@
 docker compose down
 docker image prune -a
-docker volume rm --force fhooe-mongo-dock_mongodata;
+docker volume prune -f;
 docker compose up -d
