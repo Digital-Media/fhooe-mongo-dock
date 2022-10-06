@@ -11,7 +11,7 @@ git clone https://github.com/Digital-Media/fhooe-mongo-dock.git
 
 ## Docker
 
-cd <path-to-fhooe-mongo-dock>
+`cd <path-to-fhooe-mongo-dock>`
 ```
 docker compose up -d
 ```
