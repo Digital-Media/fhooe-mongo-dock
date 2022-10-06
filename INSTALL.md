@@ -17,7 +17,7 @@ docker compose up -d
 ```
 Access mongodb via commandline in container
 ```
-docker exec -it mongodb /bin/bash -c "mongo"
+docker exec -it mongodb /bin/bash -c "mongosh"
 ```
 Access container mongo-express via commandline
 ```
