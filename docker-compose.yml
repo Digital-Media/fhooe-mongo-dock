@@ -9,6 +9,7 @@ services:
             - mongodata:/data/configdb
         ports:
             - "27017:27017"
+        restart: always
     php-apache:
         build:
             dockerfile: Dockerfile-php
@@ -38,6 +39,7 @@ services:
 # port 8083 has been chosen with consideration for https://github.com/Digital-Media/fhooe-web-dock,
 # which may run in parallel.
           - "8083:8081"
+        restart: always
 volumes:
     mongodata:
 networks:
