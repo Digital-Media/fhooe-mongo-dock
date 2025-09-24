@@ -1,3 +1,4 @@
 #!/bin/bash
-echo "## Installing zip, unzip, curl, net-tools ##"
-apt-get -y install curl git iputils-ping less nano net-tools openssl telnet unzip vim wget zip
+# This script is no longer needed as basic tools are installed directly in Dockerfile
+# Keeping for compatibility but no-op
+echo "Basic tools installation is now handled in Dockerfile"

@@ -1,28 +1,60 @@
-# Linux x64 see https://github.com/mongodb-developer/get-started-php/blob/main/Dockerfile
-FROM php:8-apache
+# Use the official PHP 8.4-apache image
+FROM php:8.4-apache
 
-LABEL maintainer="mhteaching2703@gmail.com"
+# Add image metadata in Open Container Format (OCF) compliant format
+LABEL maintainer="mhteaching2703@gmail.com" \
+      org.opencontainers.image.authors="mhteaching2703@gmail.com" \
+      org.opencontainers.image.url="https://github.com/Digital-Media/fhooe-mongo-dock.git" \
+      org.opencontainers.image.vendor="University of Applied Sciences Upper Austria, Department of Digital Media" \
+      org.opencontainers.image.licenses="MIT License" \
+      org.opencontainers.image.ref.name="fhooe-mongo-dock-php-apache:latest" \
+      org.opencontainers.image.title="fhooe-mongo-dock Apache & PHP" \
+      org.opencontainers.image.description="Apache & PHP image of the fhooe-mongo-dock environment with MongoDB support"
 
+# Copy additional initialization scripts to the image
 COPY src /src
 
-# Install scripts
-RUN apt-get update -y \
-    && apt-get install -y libicu-dev \
-					      libfreetype6-dev \
-						  libjpeg62-turbo-dev \
-		                  libpng-dev \
+# Install additional packages and run initialization scripts
+RUN mv "${PHP_INI_DIR}/php.ini-development" "${PHP_INI_DIR}/php.ini" \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends libicu-dev \
+                                                  libfreetype6-dev \
+                                                  libjpeg62-turbo-dev \
+                                                  libpng-dev \
+                                                  locales \
+                                                  locales-all \
+                                                  gettext \
+                                                  curl \
+                                                  git \
+                                                  iputils-ping \
+                                                  less \
+                                                  nano \
+                                                  net-tools \
+                                                  openssl \
+                                                  telnet \
+                                                  unzip \
+                                                  vim \
+                                                  wget \
+                                                  zip \
     && pecl install mongodb \
     && docker-php-ext-enable mongodb \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
-	&& docker-php-ext-configure gd --with-freetype --with-jpeg \
-	&& docker-php-ext-install -j$(nproc) gd \
-	&& pecl install xdebug \
-	&& docker-php-ext-enable xdebug \
-    && cd /src \
-    && chmod 755 *.sh \
-    && /src/install-apt.sh \
-    && /src/basic_tools.sh \
+    && docker-php-ext-install gettext \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" gd \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && chmod 755 -- /src/*.sh \
     && /src/install-PHP+Tools.sh \
-	&& /src/install-Apache2.sh \
-    && /src/switchhttps.sh
+    && /src/install-Apache2.sh \
+    && /src/switchhttps.sh \
+    && cd /var/www/html \
+    && composer init --no-interaction --name="fhooe/mongo-dock" --description="FHOOE MongoDB Docker Environment" --type="project" \
+    && composer require mongodb/mongodb --no-interaction \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables
+ENV LC_ALL=en_US.utf8 \
+    LANG=en_US.utf8 \
+    LANGUAGE=en_US.utf8
