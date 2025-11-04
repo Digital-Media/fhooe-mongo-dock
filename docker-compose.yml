@@ -2,12 +2,30 @@ services:
     mongo:
         image: mongo
         container_name: mongodb
+        command: mongod --replSet rs0 --bind_ip_all
         volumes:
             - mongodata:/data/db
             - mongodata:/data/configdb
         ports:
             - "27017:27017"
         restart: always
+        healthcheck:
+            test: mongosh --eval "db.adminCommand('ping')" --quiet
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 30s
+    mongo-init:
+        image: mongo
+        container_name: mongo-init
+        # Initialize replica set automatically (idempotent - safe to run multiple times)
+        entrypoint: ["bash", "/scripts/init-replicaset.sh"]
+        volumes:
+            - ./docker-entrypoint-replicaset.sh:/scripts/init-replicaset.sh:ro
+        depends_on:
+            mongo:
+                condition: service_healthy
+        restart: "no"
     php-apache:
         build:
             dockerfile: Dockerfile-php

@@ -1,0 +1,4 @@
+# This Dockerfile is kept for reference but not currently used
+# The replica set initialization uses an init container pattern instead
+# See docker-compose.yml for the mongo-init service
+FROM mongo:latest
