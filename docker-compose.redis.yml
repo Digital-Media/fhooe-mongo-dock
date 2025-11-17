@@ -1,0 +1,22 @@
+services:
+    redis:
+        image: redis:8.2
+        container_name: redis
+        command: redis-server --appendonly yes
+        volumes:
+            - redisdata:/data
+        ports:
+            - "6379:6379"
+        restart: always
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
+volumes:
+    redisdata:
+networks:
+    default:
+        name: redisnet
+
