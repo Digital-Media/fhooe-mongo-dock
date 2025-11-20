@@ -9,7 +9,7 @@ LABEL maintainer="mhteaching2703@gmail.com" \
       org.opencontainers.image.licenses="MIT License" \
       org.opencontainers.image.ref.name="fhooe-mongo-dock-php-apache:latest" \
       org.opencontainers.image.title="fhooe-mongo-dock Apache & PHP" \
-      org.opencontainers.image.description="Apache & PHP image of the fhooe-mongo-dock environment with MongoDB support"
+      org.opencontainers.image.description="Apache & PHP image of the fhooe-mongo-dock environment with MongoDB and Redis support"
 
 # Copy additional initialization scripts to the image
 COPY src /src
@@ -39,6 +39,8 @@ RUN mv "${PHP_INI_DIR}/php.ini-development" "${PHP_INI_DIR}/php.ini" \
                                                   zip \
     && pecl install mongodb \
     && docker-php-ext-enable mongodb \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
     && docker-php-ext-install gettext \
