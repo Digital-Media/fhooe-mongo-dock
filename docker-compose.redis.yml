@@ -12,8 +12,23 @@ services:
             test: ["CMD", "redis-cli", "ping"]
             interval: 10s
             timeout: 5s
-            retries: 5
-            start_period: 10s
+        retries: 5
+        start_period: 10s
+    php-apache:
+        build:
+            dockerfile: Dockerfile-php
+        container_name: mongoapp
+        volumes:
+            - ./mongoapp:/var/www/html
+            - ./src/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+        # port 8084 has been chosen with consideration for https://github.com/Digital-Media/fhooe-web-dock,
+        # which may run in parallel.
+        depends_on:
+            - redis
+        ports:
+            - "8084:80"
+            - "7444:443"
+        restart: always
 volumes:
     redisdata:
 networks:
